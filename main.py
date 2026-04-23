@@ -3,22 +3,22 @@ import pyttsx3#This is our text to speech library
 import sounddevice as sd
 import numpy as np
 
-def listen_command(duration):
+def listen_command(duration):#This command will listen to you
     sample_rate = 44100
-    samples = duration * sample_rate
-    recording = sd.rec(int(samples), samplerate=sample_rate, channels=1, dtype='int16')
-    sd.wait()
+    samples = duration * sample_rate#This is formula to claculate the number of smaples
+    recording = sd.rec(int(samples), samplerate=sample_rate, channels=1, dtype='int16')#this is the command to record
+    sd.wait()#Use this as it is necessary
     return recording
 
 def speak_command(result):
     engine.say(result)
     engine.runAndWait()#This is the command to make the engine speak the result
 
-def process_audio(recording):
-    Audio_bytes = recording.tobytes()
-    Audio_data = sr.AudioData(Audio_bytes, 44100, 2)
+def process_audio(recording):#This is the the used to process the audio to convert it into text
+    Audio_bytes = recording.tobytes()#This is used to convert into bytes
+    Audio_data = sr.AudioData(Audio_bytes, 44100, 2)#This is also necessary as it creates audio data
     r = sr.Recognizer()
-    try:
+    try:#We used this as sometimes it may not understand what we said and give us an error
         text = r.recognize_google(Audio_data)
     except sr.UnknownValueError:
         text = "Sorry, I didn't understand that."
