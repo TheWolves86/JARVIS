@@ -46,12 +46,30 @@ if __name__ == "__main__":
             last_clap_time = current_time
             if clap_count == 2:
                 print("Initializing JARVIS")
+                speech_started = False
+                silent_chunks = 0
+                chunks = []
                 while True:
-                    recording = listen_command(5)
-                    text = process_audio(recording)
-                    print(f"You said: {text}")
-                    if "stop" in text.lower():
-                        clap_count = 0
-                        break
+                    chunk = listen_command(0.3)
+                    loudness = np.max(np.abs(chunk))
+                    if loudness > 5000:
+                        print("speech detected")
+                        speech_started = True
+                        silent_chunks = 0
+                        chunks.append(chunk)
+                    else:
+                        if speech_started:
+                            silent_chunks += 1
+                            chunks.append(chunk)
+
+                            if silent_chunks > 5:
+                                print("Speech ended")
+                                break
+                if len(chunks) == 0:
+                    continue
+                full_audio = np.concatenate(chunks)
+                recording = full_audio
+                text = process_audio(recording)
+                print(f"You said: {text}")
                 break
             
