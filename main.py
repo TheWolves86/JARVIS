@@ -2,6 +2,7 @@ import speech_recognition as sr#This is our speech recognition library
 import pyttsx3#This is our text to speech library
 import sounddevice as sd
 import numpy as np
+import time
 
 def listen_command(duration):#This command will listen to you
     sample_rate = 44100
@@ -17,7 +18,6 @@ def speak_command(result):
 def process_audio(recording):#This is the the used to process the audio to convert it into text
     Audio_bytes = recording.tobytes()#This is used to convert into bytes
     Audio_data = sr.AudioData(Audio_bytes, 44100, 2)#This is also necessary as it creates audio data
-    r = sr.Recognizer()
     try:#We used this as sometimes it may not understand what we said and give us an error
         text = r.recognize_google(Audio_data)
     except sr.UnknownValueError:
@@ -30,3 +30,28 @@ def process_audio(recording):#This is the the used to process the audio to conve
 if __name__ == "__main__":
     r = sr.Recognizer()#This is the basic command to recognize the speech and convert it into text
     engine = pyttsx3.init()#This initializezes our pytss3 which is a text-to-speech engine
+    print("Listening for a clap...")
+    threshold = 10000
+    clap_count = 0
+    last_clap_time = 0
+    while True:
+        start_func = listen_command(1)
+        loudness = np.max(np.abs(start_func))
+        if loudness > threshold:
+            current_time = time.time()
+            if current_time - last_clap_time > 1:
+                clap_count += 1
+            else:
+                clap_count = 1
+            last_clap_time = current_time
+            if clap_count == 2:
+                print("Initializing JARVIS")
+                while True:
+                    recording = listen_command(5)
+                    text = process_audio(recording)
+                    print(f"You said: {text}")
+                    if "stop" in text.lower():
+                        clap_count = 0
+                        break
+                break
+            
