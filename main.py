@@ -6,6 +6,19 @@ import time
 
 stop_program = False
 
+def handle_command(text):
+    text = text.lower()
+    if 'hello' in text:
+        return "How r u"
+    elif 'open' in text:
+        return "I cant do that yet"
+    elif 'explain' in text:
+        return "I dont have my brain yet"
+    else:
+        return "wait and put my brain"
+
+
+
 def listen_command(duration):#This command will listen to you
     sample_rate = 44100
     samples = duration * sample_rate#This is formula to claculate the number of smaples
@@ -14,6 +27,7 @@ def listen_command(duration):#This command will listen to you
     return recording
 
 def speak_command(result):
+    engine.stop()
     engine.say(result)
     engine.runAndWait()#This is the command to make the engine speak the result
 
@@ -53,33 +67,34 @@ if __name__ == "__main__":
                     silent_chunks = 0
                     chunks = []
                     while True:
-                        chunk = listen_command(0.3)
+                        chunk = listen_command(0.25)
                         loudness = np.max(np.abs(chunk))
-                        if loudness > 4000:
-                            print("speech detected")
-                            speech_started = True
+
+                        if loudness > 5000:
+                            if not speech_started:
+                                print("Speech Started")
+                                speech_started = True
                             silent_chunks = 0
                             chunks.append(chunk)
-                        else:
-                            if speech_started:
-                                silent_chunks += 1
-                                chunks.append(chunk)
-
-                                if silent_chunks > 8:
-                                    print("Speech ended")
-                                    
-                                    break
+                        elif speech_started:
+                            silent_chunks += 1
+                            chunks.append(chunk)
+                            if silent_chunks > 5:
+                                print("speech ended")
+                                break
                     if len(chunks) == 0:
                         continue
                     full_audio = np.concatenate(chunks)
-                    recording = full_audio
-                    text = process_audio(recording)
-                    print(f"You said: {text}")
+                    text = process_audio(full_audio)
+                    response = handle_command(text)
+                    print(text)
+                    print(response)
+                    speak_command(response)
                     if 'stop' in text.lower():
-                        print("Bye!")
+                        print("Bye")
                         clap_count = 0
                         stop_program = True
                         break
                 if stop_program == True:
                     break
-                
+                                      
