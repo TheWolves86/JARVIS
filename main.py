@@ -19,6 +19,8 @@ def handle_command(text):#It's a sample brain for now
         return "I cant do that yet"
     elif 'explain' in text:
         return "I dont have my brain yet"
+    elif "stop" in text:
+        return ""
     else:
         return "wait and put my brain"
 
