@@ -93,7 +93,7 @@ if __name__ == "__main__":
                     text = ""
                     text = process_audio(full_audio)
                     response = handle_command(text)
-                    print(text)
+                    print(f"You said: {text}")
                     print(response)
                     speak_command(response)
                     time.sleep(0.25)
