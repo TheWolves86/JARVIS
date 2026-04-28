@@ -7,12 +7,18 @@ from dotenv import load_dotenv#So my api dont get leaked ofc
 import os
 import threading
 import requests
-import webbrowser as wb
+import webbrowser as wb#To use web browser
 import google.generativeai as genai
-from google.api_core.exceptions import ResourceExhausted
+from google.api_core.exceptions import ResourceExhausted#For getting errors when our api is exhausted
 import subprocess
+import json#For JSON
 
-import subprocess
+SHORT_FILE = "short_term.json"
+LONG_FILE = "long_term.json"
+stop_program = False
+load_dotenv()
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=GEMINI_API_KEY)
 
 _ps = subprocess.Popen(
     [
@@ -32,10 +38,18 @@ _ps = subprocess.Popen(
     stderr=subprocess.DEVNULL
 )#I got this command from chat gpt as i am a begginer
 
-stop_program = False
-load_dotenv()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-genai.configure(api_key=GEMINI_API_KEY)
+def load_json(file, default):#This function load the json
+    if not os.path.exists(file):
+        return default
+    with open(file, 'r') as f:
+        return json.load(f)
+
+def save_json(file, data):#This saves the json
+    with open(file, 'w') as f:
+        json.dump(data, f, indent=4)
+
+short_memory = load_json(SHORT_FILE, [])
+long_memory = load_json(LONG_FILE, {})
 
 def handle_command(text):#We are not doing all the things in our function to increase speed and readability
     text = text.lower()
@@ -45,10 +59,9 @@ def handle_command(text):#We are not doing all the things in our function to inc
         return "soryy, we didnt understand what u said"
     if len(text.split()) < 3:
         return "ignore"
-    if any(word in text for word in ["what", "why", "how", "explain", "who"]):#We will use ai for these as api credits are expensive lol
+    else:
         return "ai"
-    
-    return "small_talk"
+
 
 
 def listen_command(duration):#This command will listen to you
@@ -137,24 +150,51 @@ def process_audio(recording):#This is the the used to process the audio to conve
 def ask_ai(prompt):#I dont think i have to explain this.
     model = genai.GenerativeModel("gemini-2.5-flash")
 
+    short_text = ""
+    for item in short_memory:
+        short_text += f"User: {item['user']}\n"
+
+    long_text = json.dumps(long_memory)
+
     try:
         response = model.generate_content(
             f"""
-            You are Jarvis:
-            - Short answers
-            - Human-like
+            You are Jarvis.
+
+            Return ONLY valid JSON.
+
+            Format:
+            {{
+                "reply": "your response to user",
+                "memory": {{}} 
+            }}
+
+            Rules:
+                - Keep reply short and human
+                - Only store useful personal info in memory (name, birthday, likes, etc)
+                - If nothing to store → memory = {{}}
+
+            Long term memory:
+            {long_text}
+
+            Recent conversation:
+            {short_text}
 
             User: {prompt}
             """
-        )
-        return response.text or "No response."
+        )#We told it to also give things that should be stored in long term memory
+
+        raw = response.text.strip().replace("```json", "").replace("```", "")
+        data = json.loads(raw)
+
+        return data
 
     except ResourceExhausted:
-        return "Sir, my AI limit is reached. Please wait a bit."
+        return {"reply": "AI limit reached.", "memory": {}}
 
     except Exception as e:
         print(e)
-        return "Something went wrong."
+        return {"reply": "Error.", "memory": {}}
 
 if __name__ == "__main__":
     r = sr.Recognizer()
@@ -179,6 +219,13 @@ if __name__ == "__main__":
             if command_audio is None:
                 continue
             command_text = process_audio(command_audio)
+            short_memory.append({
+                "user": command_text#I twill just put what i said in history
+            })
+
+            short_memory[:] = short_memory[-8:]
+
+            save_json(SHORT_FILE, short_memory)
             if not command_text:#It will do this if it cant understand what u said
                 print("Sorry,Kindly say again")
                 continue
@@ -193,9 +240,18 @@ if __name__ == "__main__":
             if action == "open_youtube":
                 wb.open("https://www.youtube.com/")
             elif action == "ai":
-                response = ask_ai(command_text)
-                print(response)
-                speak_command(response)
+                result = ask_ai(command_text)
+                reply = result.get("reply", "")
+                memory_update = result.get("memory", {})
+                print(reply)
+                speak_command(reply)
+                for key, value in memory_update.items():
+                    if isinstance(value, list):
+                        existing = long_memory.get(key, [])
+                        long_memory[key] = list(set(existing + value))
+                    else:
+                        long_memory[key] = value
+                save_json(LONG_FILE, long_memory)
             elif action == "small_talk":
                 print("I am still learning that")
                 speak_command("I am still learning that")
