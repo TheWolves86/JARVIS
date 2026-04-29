@@ -219,8 +219,8 @@ def ask_ai(prompt):#I dont think i have to explain this.
         return {"reply": "Error.", "memory": {}}
     
 
-def open_anything(text):
-    query = text.replace("open", "").strip().lower()
+def open_anything(text):#So it can open anything for you
+    query = text.replace("open", "").strip().lower()#it strips so you can search like yk
 
     if query in KNOWN_SITES:
         wb.open(KNOWN_SITES[query])
