@@ -131,7 +131,7 @@ def capture_command():#Idk if you know this or not but this is the hardest part
         sd.sleep(50)
         timeout += 50
 
-        if speech_started == True and silent_chunks > 12:
+        if speech_started == True and silent_chunks > 16:
             print("✅ Got it!")
             break
         if not speech_started and timeout > 8000:
@@ -162,7 +162,7 @@ def process_audio(recording):#This is the the used to process the audio to conve
     return text
 
 def ask_ai(prompt):#I dont think i have to explain this.
-    model = genai.GenerativeModel("gemini-2.5-flash")
+    model = genai.GenerativeModel("gemini-2.5-flash-lite")
 
     short_text = ""
     for item in short_memory:
@@ -189,10 +189,10 @@ def ask_ai(prompt):#I dont think i have to explain this.
                 - If nothing to store → memory = {{}}
 
             Long term memory:
-            {long_text}
+            {long_text}#It give the ai our long term memory
 
             Recent conversation:
-            {short_text}
+            {short_text}#It give it short term memory
 
             User: {prompt}
             """
@@ -255,11 +255,11 @@ if __name__ == "__main__":
                 wb.open("https://www.youtube.com/")
             elif action == "ai":
                 result = ask_ai(command_text)
-                reply = result.get("reply", "")
-                memory_update = result.get("memory", {})
+                reply = result.get("reply", "")#It egts the reult
+                memory_update = result.get("memory", {})#It egts the specific memory part we need
                 print(reply)
                 speak_command(reply)
-                for key, value in memory_update.items():
+                for key, value in memory_update.items():#This loops updates it
                     if isinstance(value, list):
                         existing = long_memory.get(key, [])
                         long_memory[key] = list(set(existing + value))
@@ -267,7 +267,7 @@ if __name__ == "__main__":
                         long_memory[key] = value
                 save_json(LONG_FILE, long_memory)
             elif action == "search":
-                    web_data = search_web(command_text)
+                    web_data = search_web(command_text)#It wakes up our search web function
 
                     if not web_data:
                         speak_command("Couldn't find anything useful.")
