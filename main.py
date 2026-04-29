@@ -51,6 +51,18 @@ def save_json(file, data):#This saves the json
 short_memory = load_json(SHORT_FILE, [])
 long_memory = load_json(LONG_FILE, {})
 
+def search_web(query):
+    results = []
+
+    try:
+        from ddgs import DDGS
+        with DDGS() as ddgs:
+            for r in ddgs.text(query, max_results=3):
+                results.append(r.get("body", ""))
+    except Exception as e:
+        print(f"Search Error: {e}")
+    return " ".join(results)
+
 def handle_command(text):#We are not doing all the things in our function to increase speed and readability
     text = text.lower()
     if "open youtube" in text:
@@ -59,6 +71,8 @@ def handle_command(text):#We are not doing all the things in our function to inc
         return "soryy, we didnt understand what u said"
     if len(text.split()) < 3:
         return "ignore"
+    if "search" in text:
+        return "search"
     else:
         return "ai"
 
@@ -252,6 +266,17 @@ if __name__ == "__main__":
                     else:
                         long_memory[key] = value
                 save_json(LONG_FILE, long_memory)
+            elif action == "search":
+                    web_data = search_web(command_text)
+
+                    if not web_data:
+                        speak_command("Couldn't find anything useful.")
+                        continue
+
+                    result = ask_ai(f"Answer this using latest info:\n{web_data}")
+
+                    reply = result.get("reply", "")
+                    speak_command(reply)
             elif action == "small_talk":
                 print("I am still learning that")
                 speak_command("I am still learning that")
