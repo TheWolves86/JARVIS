@@ -81,20 +81,23 @@ long_term.json: His "Permanent Diary" for your name, birthday, and likes.
 
 Use this command in ur terminal:
 
-  pip install speechrecognition sounddevice numpy python-dotenv google-generativeai duckduckgo_search
+    pip install speechrecognition sounddevice numpy python-dotenv google-generativeai duckduckgo_search
 
 2. Add your Secret Keys:
 
 Create a file called .env in the main folder and put your key inside:
 
 Code snippet
-  GEMINI_API_KEY=your_key_here
-  SLACK_LINK=your_slack_link_here
 
+    GEMINI_API_KEY=your_key_here
+
+    SLACK_LINK=your_slack_link_here
+    
 3. Run the App:
 
 Run this command on ur terinal:
-  python main.py
+
+    python main.py
 
 👶 Notes for Fellow begineer like me:
 
