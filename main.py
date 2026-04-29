@@ -17,8 +17,16 @@ SHORT_FILE = "short_term.json"
 LONG_FILE = "long_term.json"
 stop_program = False
 load_dotenv()
+slack_link = os.getenv("SLACK_LINK")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
+
+KNOWN_SITES = {
+    "youtube": "https://www.youtube.com",
+    "google": "https://www.google.com",
+    "slack": f"{slack_link}",
+    "github": "https://github.com"
+}
 
 _ps = subprocess.Popen(
     [
@@ -65,8 +73,8 @@ def search_web(query):
 
 def handle_command(text):#We are not doing all the things in our function to increase speed and readability
     text = text.lower()
-    if "open youtube" in text:
-        return "open_youtube"
+    if 'open' in text:
+        return "open_anything"
     if "Sorry, I didn't understand that." == text:
         return "soryy, we didnt understand what u said"
     if len(text.split()) < 3:
@@ -209,6 +217,15 @@ def ask_ai(prompt):#I dont think i have to explain this.
     except Exception as e:
         print(e)
         return {"reply": "Error.", "memory": {}}
+    
+
+def open_anything(text):
+    query = text.replace("open", "").strip().lower()
+
+    if query in KNOWN_SITES:
+        wb.open(KNOWN_SITES[query])
+    else:
+        wb.open(f"https://www.google.com/search?q={query}")
 
 if __name__ == "__main__":
     r = sr.Recognizer()
@@ -251,9 +268,7 @@ if __name__ == "__main__":
                 exit()
 
             action = handle_command(command_text)
-            if action == "open_youtube":
-                wb.open("https://www.youtube.com/")
-            elif action == "ai":
+            if action == "ai":
                 result = ask_ai(command_text)
                 reply = result.get("reply", "")#It egts the reult
                 memory_update = result.get("memory", {})#It egts the specific memory part we need
@@ -277,6 +292,9 @@ if __name__ == "__main__":
 
                     reply = result.get("reply", "")
                     speak_command(reply)
+            elif action == "open_anything":
+                open_anything(command_text)
+                speak_command("Opening it for you.")
             elif action == "small_talk":
                 print("I am still learning that")
                 speak_command("I am still learning that")
