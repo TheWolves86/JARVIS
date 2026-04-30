@@ -80,20 +80,24 @@ long_term.json: His "Permanent Diary" for your name, birthday, and likes.
 1. Install the Python parts:
 
 Use this command in ur terminal:
-pip install speechrecognition sounddevice numpy python-dotenv google-generativeai duckduckgo_search
+
+    pip install speechrecognition sounddevice numpy python-dotenv google-generativeai duckduckgo_search
 
 2. Add your Secret Keys:
 
 Create a file called .env in the main folder and put your key inside:
 
 Code snippet
-GEMINI_API_KEY=your_key_here
-SLACK_LINK=your_slack_link_here
 
+    GEMINI_API_KEY=your_key_here
+
+    SLACK_LINK=your_slack_link_here
+    
 3. Run the App:
 
 Run this command on ur terinal:
-python main.py
+
+    python main.py
 
 👶 Notes for Fellow begineer like me:
 
@@ -111,6 +115,6 @@ Warning: If you have a quiet voice, you might need to change the loudness thresh
 
 🤖 Where was AI used-
 
-I took chatgpt and gemini help to figure out libraries commands and function as i am a begginer.I also made JARVIS mouth completely by JARVIS as pyaudio was not available for latest versions and i could not figure out anything.I used my creativity for the memory feature and many more things were done by me and some were done by AI
+I took chatgpt and gemini help to figure out libraries commands and function as i am a begginer.I also made JARVIS mouth completely by JARVIS as pyaudio was not available for latest versions and i could not figure out anything.I used my creativity for the memory feature and many more things were done by me and some were done by AI.
 
 BYEE!
