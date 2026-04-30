@@ -1,12 +1,10 @@
 import speech_recognition as sr#This is our speech recognition library
-import pyttsx3#This is our text to speech library
+
 import sounddevice as sd#This library is used in place of pyaudio
 import numpy as np#Used for its array
 import time#We need it for many things
 from dotenv import load_dotenv#So my api dont get leaked ofc
 import os
-import threading
-import requests
 import webbrowser as wb#To use web browser
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted#For getting errors when our api is exhausted
