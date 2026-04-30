@@ -1,5 +1,4 @@
 import speech_recognition as sr#This is our speech recognition library
-
 import sounddevice as sd#This library is used in place of pyaudio
 import numpy as np#Used for its array
 import time#We need it for many things
@@ -11,10 +10,23 @@ from google.api_core.exceptions import ResourceExhausted#For getting errors when
 import subprocess
 import json#For JSON
 
+def ensure_api_key():
+    key = os.getenv("GEMINI_API_KEY")
+    if not key:
+        print("Gemini Api key was not found ")
+        print("Get one from: https://aistudio.google.com/app/apikey\n")
+        user_key = input("Enter ur GEMINI API key: ").strip()
+        with open(".env", "w") as f:
+            f.write(f"GEMINI_API_KEY={user_key}\n")
+        print("KEY saved!Pls restart JARVIS")
+        input("Press Enter to exit")
+        exit()
+
 SHORT_FILE = "short_term.json"
 LONG_FILE = "long_term.json"
 stop_program = False
 load_dotenv()
+ensure_api_key()
 slack_link = os.getenv("SLACK_LINK")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
@@ -43,6 +55,7 @@ _ps = subprocess.Popen(
     stdout=subprocess.PIPE,
     stderr=subprocess.DEVNULL
 )#I got this command from chat gpt as i am a begginer
+
 
 def load_json(file, default):#This function load the json
     if not os.path.exists(file):

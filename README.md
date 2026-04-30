@@ -8,7 +8,7 @@ Jarvis lives in my computer, listens to me, remembers things about me, and even 
 
 🐢 The "Honest" Section -
 
-Tbh Jarvis is kind of slow due to api stuff and i am a beginner so idk how to make it very fast. And sometime it also lags. I used the help of ai but it couldnt do any well.And there are some limitations like sometime speech recognition doesnt work as it should be and this JARVIS is only available to Windows
+Tbh Jarvis is kind of slow due to api stuff and i am a beginner so idk how to make it very fast. And sometime it also lags. I used the help of ai but it couldnt do any well.And there are some limitations like sometime speech recognition doesnt work as it should be and this JARVIS is only available to Windows And you can only use GEMINI api key for now.
 
 
 ✨ What can JARVIS do?-
