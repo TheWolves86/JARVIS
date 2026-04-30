@@ -109,4 +109,8 @@ Warning: If you have a quiet voice, you might need to change the loudness thresh
 
 🏠 Controlling my actual room lights or music.
 
+🤖 Where was AI used-
+
+I took chatgpt and gemini help to figure out libraries commands and function as i am a begginer.I also made JARVIS mouth completely by JARVIS as pyaudio was not available for latest versions and i could not figure out anything.I used my creativity for the memory feature and many more things were done by me and some were done by AI
+
 BYEE!
