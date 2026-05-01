@@ -127,7 +127,7 @@ def capture_command():#Idk if you know this or not but this is the hardest part
         nonlocal speech_started,silent_chunks,chunks
 
         loudness = np.max(np.abs(indata))
-        if loudness > 6500:#I put this 6500 but if it cant catch ur voice,you can also put 2500 or whatever is working
+        if loudness > 3500:#I put this 3500 but if it cant catch ur voice,you can also put 2500 or whatever is working
             if speech_started == False:
                 print("🎤 Listening...")
                 speech_started = True
