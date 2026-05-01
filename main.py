@@ -273,13 +273,14 @@ def open_anything(text):#So it can open anything for you
 
 if __name__ == "__main__":
     r = sr.Recognizer()
+    DYNAMIC_THRESHOLD = calibrate_mic()
     print("=" * 40)
     print("  JARVIS - Voice Agent")
     print("  Say 'Jarvis' to wake up")
     print("  Say 'stop' to exit")
     print("=" * 40)
     speak_command("JARVIS online. Say Jarvis to activate me.")
-    DYNAMIC_THRESHOLD = calibrate_mic()
+    
 
     while True:
         print("[StandBY] Say JARVIS.....")
