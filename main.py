@@ -95,6 +95,37 @@ def handle_command(text):#We are not doing all the things in our function to inc
     else:
         return "ai"
 
+def calibrate_mic(duration=2):#Half of this was took by gemini
+    print("⚙️ Calibrating microphone... Please remain quiet for 2 seconds.")
+    sample_rate = 16000
+    block_size = 800
+    ambient_levels = []
+
+    def calib_callback(indata, frames, time_info, status):
+        # Record the loudness of the background noise
+        loudness = np.max(np.abs(indata))
+        ambient_levels.append(loudness)
+
+    stream = sd.InputStream(
+        samplerate=sample_rate, 
+        channels=1,
+        dtype='int16',
+        blocksize=block_size,
+        callback=calib_callback
+    )
+    
+    stream.start()
+    sd.sleep(duration * 1000) # Listen for the specified duration
+    stream.stop()
+    stream.close()
+
+    # Calculate the average background noise and add a buffer for voice
+    baseline = np.mean(ambient_levels)
+    dynamic_threshold = baseline + 600  # You can tweak this +600 buffer if needed
+
+    print(f"✅ Calibration complete! (Background noise: {baseline:.0f}, Threshold set to: {dynamic_threshold:.0f})")
+    return dynamic_threshold
+
 
 
 def listen_command(duration):#This command will listen to you
@@ -115,7 +146,7 @@ def speak_command(text):#Instead of using pyttsx3,i used windows powershell as p
     _ps.stdin.flush()
     _ps.stdout.readline()
 
-def capture_command():#Idk if you know this or not but this is the hardest part
+def capture_command(threshold): # Pass the threshold in as an argument
     sample_rate = 16000
     block_size = 800
     timeout = 0
@@ -123,15 +154,17 @@ def capture_command():#Idk if you know this or not but this is the hardest part
     silent_chunks = 0
     chunks = []
 
-    def callback(indata, frames, time_info, status):#I know these look scary but we dont have pyaudio
-        nonlocal speech_started,silent_chunks,chunks
+    def callback(indata, frames, time_info, status):
+        nonlocal speech_started, silent_chunks, chunks
 
         loudness = np.max(np.abs(indata))
-        if loudness > 3500:#I put this 3500 but if it cant catch ur voice,you can also put 2500 or whatever is working
+        
+        # USE THE DYNAMIC THRESHOLD HERE!
+        if loudness > threshold: 
             if speech_started == False:
                 print("🎤 Listening...")
                 speech_started = True
-
+            
             silent_chunks = 0
             chunks.append(indata.copy())
         else:
@@ -243,12 +276,14 @@ if __name__ == "__main__":
     print("=" * 40)
     print("  JARVIS - Voice Agent")
     print("  Say 'Jarvis' to wake up")
-    print("  Say 'stop' or 'shutdown' to exit")
+    print("  Say 'stop' to exit")
     print("=" * 40)
     speak_command("JARVIS online. Say Jarvis to activate me.")
+    DYNAMIC_THRESHOLD = calibrate_mic()
+
     while True:
         print("[StandBY] Say JARVIS.....")
-        audio = capture_command()#Captures our JARVIS command to wake hismelf up
+        audio = capture_command(DYNAMIC_THRESHOLD)#Captures our JARVIS command to wake hismelf up
         if audio is None:
             continue
         wake_text = process_audio(audio)
@@ -257,7 +292,7 @@ if __name__ == "__main__":
         print("JARVIS Activated")
         speak_command("Yes Sir!")
         while True:
-            command_audio = capture_command()
+            command_audio = capture_command(DYNAMIC_THRESHOLD)
             if command_audio is None:
                 continue
             command_text = process_audio(command_audio)
